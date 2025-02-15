@@ -1,0 +1,101 @@
+@import "../../style/responsive.scss";
+.searchBar{
+    @include sm{
+        margin-top: -15%;
+    }
+    .type{
+        @include sm{
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-evenly;
+        }
+        button{
+            font-family: "Inter", sans-serif;
+            font-weight: 800;
+            padding: 16px 36px;
+            border: 1px solid #999;
+            cursor: pointer;
+            border-bottom: none;
+            cursor: pointer;
+            background-color: white ;
+            text-transform: capitalize ;
+            
+            @include sm{
+                border-radius: 10px;
+            }
+            &.active{
+                background-color: black;
+                color: white;
+            }
+
+            &:first-child{
+                border-top-left-radius: 8px;
+                border-right: none;
+
+            }
+            &:last-child{
+                border-top-right-radius: 8px;
+                border-left: none;
+            }
+        }
+    }
+    form{
+        border-top: 1px solid #999;
+        display: flex;
+        justify-content: space-between;
+        height: 64px;
+        //gap: 5px;
+        @include sm{
+            flex-direction: column;
+            border:none;
+            gap:10%
+        }
+        input{
+            border:none;
+            padding:0px 10px;
+            width: 200px;
+            @include lg{
+                padding: 0px 5px;
+                &:nth-child(2), &:nth-child(3){
+                    width: 140px;
+                }
+            }
+            @include md{
+                width: 200px;
+                &:nth-child(2), &:nth-child(3){
+                    width: 200px;
+                }
+            }
+            @include sm{
+                border-radius: 10px;
+                width: auto;
+                &:nth-child(2), &:nth-child(3){
+                    width: auto;
+                
+                }
+                padding: 20px;
+                border: 1px solid #999;
+            }
+        }
+        input::placeholder {
+            font-family: "Inter", sans-serif;
+            font-weight: 800;
+        }
+        button{
+            border: none;
+            cursor: pointer;
+            background: black;
+            flex: 1;
+            @include sm{
+                padding: 10px;
+            }
+            img{
+                width: 24px;
+                height: 24px;
+            }
+            @include sm{
+                border-radius: 10px;
+            }
+        }
+    }
+}
