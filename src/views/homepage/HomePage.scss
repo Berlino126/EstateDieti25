@@ -9,6 +9,7 @@
   .textContainer {
     flex: 3;
     .wrapper {
+
       padding-right: 100px;
       display: flex;
       flex-direction: column;
@@ -16,10 +17,11 @@
       gap: 50px;
       height: 100%;
       @include md {
+        margin-top: -10%;
         padding: 0;
       }
       @include sm {
-        margin-top: -70px;
+        margin-top: -50%;
         justify-content: flex-start;
       }
       h1 {

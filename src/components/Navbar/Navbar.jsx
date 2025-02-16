@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useContext} from "react";
 import "./navbar.scss";
 import { Link } from "react-router";
+import { AuthContext } from "../../context/AuthContext";
 function Navbar() {
   const [open, setOpen] = useState(false);
-  const user = true;
+  const { currentUser } = useContext(AuthContext);
+  console.log(currentUser);
+
 
   return (
     <nav>
@@ -18,20 +21,16 @@ function Navbar() {
         <a href="/">Contatti</a>
       </div>
       <div className="right">
-        {user ? (
+        {currentUser ? (
           <div className="user">
-            <img src="/menu.png" alt="" />
-            <span>John DOe</span>
+            <img src={currentUser.userInfo.avatar || "/noavatar.jpg"} alt="" />
+            <span>{currentUser.userInfo.username}</span>
             <Link to ="/profile" className="profile">Profilo</Link>
           </div>
         ) : (
           <>
-            <a href="/" className="aut">
-              Accedi
-            </a>
-            <a href="/" className="aut">
-              Registrati
-            </a>
+            <Link to="/login" className="aut">Accedi</Link>
+            <Link to="/register" className="aut">Registrati</Link>
           </>
         )}
 

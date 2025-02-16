@@ -50,6 +50,26 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            button {
+                border-radius: 8px;
+                width: 140px;
+                padding: 12px;
+                border: none;
+                cursor: pointer;
+                background: #000;
+                color: white;
+                font-weight: 600;
+                transition: background 0.3s, transform 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            button:hover {
+                background: #222;
+                transform: scale(1.05);
+            }
             span{
                 display: flex;
                 align-items: center;

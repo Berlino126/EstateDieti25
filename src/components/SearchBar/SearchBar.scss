@@ -1,7 +1,7 @@
 @import "../../style/responsive.scss";
 .searchBar{
     @include sm{
-        margin-top: -15%;
+        margin-top: -5%;
     }
     .type{
         @include sm{
