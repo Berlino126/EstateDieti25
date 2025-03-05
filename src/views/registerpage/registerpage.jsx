@@ -2,7 +2,7 @@ import "./registerpage.scss";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState } from "react";
-import { FaGoogle, FaFacebook } from "react-icons/fa";
+import { FaGoogle, FaFacebook, FaGithub } from "react-icons/fa";
 function RegisterPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -24,12 +24,19 @@ function RegisterPage() {
       navigate("/login");
       console.log(res.data);
     } catch (error) {
-      console.log(err);
-      setError(err.response.data.message);
+      console.log(error);
+      setError(error.response.data.message);
     } finally {
       setIsLoading(false);
     }
   };
+  const google = () => {
+    window.location.href = "http://localhost:8800/api/auth/google";
+  };
+  const github = () =>{
+    window.location.href = "http://localhost:8800/api/auth/github";
+  }
+
   return (
     <div className="registerPage">
       <div className="formContainer">
@@ -40,14 +47,14 @@ function RegisterPage() {
           <input name="password" type="password" placeholder="Password" />
           <button disabled={isLoading} className="registrati">Registrati</button>
           <div className="oauth">
-            <button className="google">
+            <button className="google" onClick={google}>
               <FaGoogle size={20} />
             </button>
-            <button className="facebook">
-              <FaFacebook size={20} />
+            <button className="github" onClick={github}>
+              <FaGithub size={20} />
             </button>
           </div>
-          {error && <span>{err}</span>}
+          {error && <span>{error}</span>}
           <Link to="/login" className="loginLink">
             {" "}
             Hai già un account?

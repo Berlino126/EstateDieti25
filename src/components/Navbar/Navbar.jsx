@@ -23,8 +23,7 @@ function Navbar() {
       <div className="right">
         {currentUser ? (
           <div className="user">
-            <img src={currentUser.userInfo.avatar || "/noavatar.jpg"} alt="" />
-            <span>{currentUser.userInfo.username}</span>
+            <span>{currentUser.username}</span>
             <Link to ="/profile" className="profile">Profilo</Link>
           </div>
         ) : (
@@ -42,12 +41,18 @@ function Navbar() {
           />
         </div>
         <div className={open ? "menu active" : "menu"}>
-          <a href="/">HomePage</a>
-          <a href="/">Chi siamo</a>
-          <a href="/">Contatti</a>
-          <a href="/">Agenti</a>
-          <a href="/">Accedi</a>
-          <a href="/">Registrati</a>
+          <Link to="/">HomePage</Link>
+          <Link to="/chi-siamo">Chi siamo</Link>
+          <Link to="/list">Compra</Link>
+          <Link to="/list">Affitta</Link>
+          {currentUser ? (
+            <Link to="/profile">Profilo</Link>
+          ) : (
+            <>
+              <Link to="/login">Accedi</Link>
+              <Link to="/register">Registrati</Link>
+            </>
+          )}
         </div>
       </div>
     </nav>

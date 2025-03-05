@@ -2,8 +2,24 @@
 body{
     font-family: "Inter", sans-serif;
     background-color: #EFF2F1;
-    overflow-x: hidden; /* Nasconde lo scroll orizzontale */
+    overflow-x: hidden;
+    overflow-y: hidden; /* Nasconde lo scroll orizzontale */
     width: 100vw;
+    input {
+        width: 80%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease-in-out;
+
+        &:focus {
+          outline: none;
+          border-color: #6ccff6;
+          box-shadow: 0 0 8px rgba(108, 207, 246, 0.5);
+        }
+      }
+
 }
 
   

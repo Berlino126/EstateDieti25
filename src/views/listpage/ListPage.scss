@@ -24,6 +24,9 @@
             flex-direction: column;
             gap: 30px;
             overflow-y:scroll;
+            &::-webkit-scrollbar {
+                display: none;
+              }
             max-height: 100%;
             max-height: calc(100vh - 100px); // Adatta lo spazio disponibile
             .filter{

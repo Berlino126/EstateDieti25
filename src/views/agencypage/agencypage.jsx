@@ -7,7 +7,7 @@ function AgencyPage(){
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!currentUser || currentUser.userInfo.role !== "agency") {
+        if (!currentUser || currentUser.role !== "agency") {
             navigate("/");
         }
     }, [currentUser, navigate]); 

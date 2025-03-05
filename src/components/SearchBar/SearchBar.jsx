@@ -1,38 +1,159 @@
 import { useState } from "react";
-import "./SearchBar.scss";
+import "./stile.scss";
+import { useNavigate } from "react-router-dom";
 
-const type = ["Compra", "Affitta"];
+const contract = ["Compra", "Affitta"];
+
+// Opzioni di prezzo per compra e affitta
+const priceOptionsBuy = [
+  50000, 75000, 100000, 125000, 150000, 200000, 250000, 300000, 400000, 500000,
+]; // Compra
+const priceOptionsRent = [200, 500, 1000, 2000, 3000, 5000]; // Affitta
 
 function SearchBar() {
   const [query, setQuery] = useState({
-    type: "Compra",
+    contract: "Compra", // Tipo di contratto predefinito
     location: "",
-    minPrice: 0,
-    maxPrice: 0,
+    minPrice: "", // Lasciato vuoto per nessun filtro di prezzo
+    maxPrice: "", // Lasciato vuoto per nessun filtro di prezzo
   });
 
+  const [suggestions, setSuggestions] = useState([]);
+  const navigate = useNavigate();
+
   const switchType = (val) => {
-    setQuery((prev) => ({ ...prev, type: val }));
+    setQuery((prev) => ({ ...prev, contract: val }));
   };
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+    navigate(
+      `/list?contract=${query.contract === "Compra" ? "buy" : "rent"}&city=${
+        query.location
+      }&minPrice=${query.minPrice}&maxPrice=${query.maxPrice}`
+    );
+  };
+
+  const handleChange = async (e) => {
+    const { name, value } = e.target;
+    setQuery((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "location" && value.length > 2) {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?city=${value}&countrycodes=IT&format=json`
+        );
+        const data = await res.json();
+
+        const cities = [...new Set(data.map((place) => place.name))];
+
+        setSuggestions(cities);
+      } catch (error) {
+        console.error("Errore nel recupero delle città:", error);
+      }
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleSelectSuggestion = (city) => {
+    setQuery((prev) => ({ ...prev, location: city }));
+    setSuggestions([]);
+  };
+
+  const handlePriceChange = (e) => {
+    const { name, value } = e.target;
+    const numericValue = value ? parseInt(value) : "";
+
+    if (
+      name === "minPrice" &&
+      numericValue > query.maxPrice &&
+      query.maxPrice !== ""
+    ) {
+      alert("Il prezzo minimo non può essere maggiore del prezzo massimo");
+      return;
+    }
+    if (
+      name === "maxPrice" &&
+      numericValue < query.minPrice &&
+      query.minPrice !== ""
+    ) {
+      alert("Il prezzo massimo non può essere minore del prezzo minimo");
+      return;
+    }
+
+    setQuery((prev) => ({ ...prev, [name]: numericValue }));
+  };
+  // Scegli le opzioni di prezzo in base al tipo di contratto
+  const priceOptions =
+    query.contract === "Compra" ? priceOptionsBuy : priceOptionsRent;
 
   return (
     <div className="searchBar">
       <div className="type">
-        {type.map((t) => (
+        {contract.map((t) => (
           <button
             key={t}
             onClick={() => switchType(t)}
-            className={query.type === t ? "active" : ""}
+            className={query.contract === t ? "active" : ""}
           >
             {t}
           </button>
         ))}
       </div>
       <form>
-        <input type="text" name="location" placeholder="Città" />
-        <input type="number" name="minPrice" min={0} max={1000000000} placeholder="Prezzo Minimo" />
-        <input type="number" name="maxPrice" min={0} max={1000000000} placeholder="Prezzo Massimo" />
-        <button>
+        <div className="city-container">
+          <input
+
+            type="text"
+            name="location"
+            placeholder="Città"
+            className="cityinput"
+            value={query.location}
+            required
+            onChange={handleChange}
+
+          />
+          {suggestions.length > 0 && (
+            <ul className="autocomplete-list">
+              {suggestions.map((city, index) => (
+                <li key={index} onClick={() => handleSelectSuggestion(city)}>
+                  {city}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="price">
+          <select
+            name="minPrice"
+            value={query.minPrice}
+            onChange={handlePriceChange}
+          >
+            <option value="">Prezzo minimo</option>
+            {priceOptions.map((price) => (
+              <option key={price} value={price}>
+                {price.toLocaleString()}€
+              </option>
+            ))}
+          </select>
+
+          <select
+            name="maxPrice"
+            value={query.maxPrice}
+            onChange={handlePriceChange}
+          >
+            <option value="">Prezzo massimo</option>
+            {priceOptions.map((price) => (
+              <option key={price} value={price}>
+                {price.toLocaleString()}€
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button className="cerca" onClick={handleSearch}>
           <img src="/search.png" alt="" />
         </button>
       </form>

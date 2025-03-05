@@ -8,9 +8,11 @@ import SinglePage from "./views/singlepage/singlepage";
 import LoginPage from "./views/loginpage/loginpage";
 import Profilepage from "./views/profilepage/profilepage";
 import RegisterPage from "./views/registerpage/registerpage";
-import AdminPage from "./views/adminpage/adminpage";
+
 import EditProperties from "./views/editpropertiespage/editpropertiespage";
 import AgencyPage from "./views/agencypage/agencypage";
+import { listPropertyLoader, singlePropertyLoader } from "./lib/loaders.js";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   const router = createBrowserRouter([
@@ -21,11 +23,6 @@ function App() {
         {
           path:"/", 
           element:<HomePage/>
-        }, 
-
-        {
-          path:"/:id", 
-          element:<SinglePage/>
         }, 
         {
           path:"/login", 
@@ -49,19 +46,26 @@ function App() {
         },
         {
           path:"/list", 
-          element:<ListPage/>
+          element:<ListPage/>,
+          loader: listPropertyLoader
         }, 
-        {
-          path:"/admin-dashboard", 
-          element:<AdminPage/>
-        }, 
+
         {
           path:"/edit-properties", 
-          element:<EditProperties/>
+          element:(
+          <PrivateRoute
+            element={<EditProperties/>}
+            allowedRoles={["agent", "agency"]}
+            />),
         }, 
         {
           path:"/agency-page", 
           element:<AgencyPage/>
+        },
+        {
+          path:"/:id", 
+          element:<SinglePage/>,
+          loader: singlePropertyLoader
         }
       ]
     }

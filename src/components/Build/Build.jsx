@@ -1,10 +1,11 @@
 import { Link } from "react-router";
 import "./Build.scss";
 function Build({ item }) {
+  console.log(item);
   return (
     <div className="build">
       <Link to={`/${item.id}`}className="imgContainer">
-      <img src={item.img} alt="" />
+      <img src={item.images[0]} alt="" />
       </Link>
       <div className="textContainer">
       <p className="prezzo">€{item.price}</p>
@@ -17,16 +18,16 @@ function Build({ item }) {
         <div className="bottom">
           <div className="caratteristiche">
           <div className="caratteristica">
-            <img src="/bed.png" alt="" />
-            <span>{item.bedroom}</span>
+          <i className="fa fa-bed"></i>
+            <span>{item.rooms}</span>
           </div>
           <div className="caratteristica">
-            <img src="/bath.png" alt="" />
+          <i className="fa fa-bath"></i>
             <span>{item.bathroom}</span>
           </div>
           </div>
           <div className="icona">
-            <img src="/save.png" alt="" />
+          <i className="fa fa-tag"></i>
           </div>
         </div>
       </div>

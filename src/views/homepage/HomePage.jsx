@@ -9,8 +9,10 @@ function HomePage(){
         <div className="homePage">
             <div className="textContainer">
                 <div className="wrapper">
-                <h1 className="title">DietiEstate25 </h1>
-                <h2>Inizia a cercare la casa dei tuoi sogni</h2>
+                    <div className="scritte">
+                    <h1 className="title">DietiEstate25 </h1>
+                    <h2>Inizia a cercare la casa dei tuoi sogni</h2>
+                    </div>
                 <SearchBar/>
                 </div>
             </div>

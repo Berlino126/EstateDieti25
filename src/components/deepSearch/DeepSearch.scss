@@ -30,12 +30,15 @@
 .input-group label {
     font-size: 14px;
 
+
   }
   .input-group input, .input-group select {
     padding: 1%;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 14px;
+
+    width: 150px;
   }
   
 .caratteristiche {
@@ -56,15 +59,19 @@
     font-size: 14px;
     display: flex;
     align-items: center;
+
+    justify-content: space-between;
+    .text{
+      display: flex;
+      align-items: center;
+    }
+    input{
+      width: 20px;
+    }
   }
-  .checkbox-group label {
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-  }
-  
+
   .checkbox-group i {
-    margin-right: 8px; /* Adjusts the space between the icon and the label */
+    margin-right: 10%; /* Adjusts the space between the icon and the label */
   }
   
   .buttons{
