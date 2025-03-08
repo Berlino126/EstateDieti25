@@ -1,4 +1,5 @@
 import prisma from "../lib/prisma.js";
+import jwt from "jsonwebtoken";
 const getBoundingCoordinates = (lat, lon, radius) => {
   const earthRadius = 6371; // Raggio della Terra in km
   const latDiff = (radius / earthRadius) * (180 / Math.PI);
@@ -13,7 +14,10 @@ const getBoundingCoordinates = (lat, lon, radius) => {
 };
 export const getProperties = async (req, res) => {
   const query = req.query;
-  
+  const page = parseInt(query.page) || 1; // Numero di pagina
+  const limit = 10; // Numero di immobili per pagina
+  const skip = (page - 1) * limit; // Offset per la query
+
   try {
     // Mappa delle classi energetiche
     const energyClasses = ["A4", "A3", "A2", "A1", "B", "C", "D", "E", "F", "G"];
@@ -82,7 +86,10 @@ export const getProperties = async (req, res) => {
     });
 
     // Query al database
-    const properties = await prisma.property.findMany({ where: filters });
+    const properties = await prisma.property.findMany({ where: filters,
+      skip: skip,
+      take: limit,
+    });
 
     res.status(200).json(properties);
   } catch (err) {
@@ -92,6 +99,7 @@ export const getProperties = async (req, res) => {
 };
 
 export const getProperty = async (req, res) => {
+
   const id = parseInt(req.params.id, 10);
   try {
     const property = await prisma.property.findUnique({
@@ -106,7 +114,32 @@ export const getProperty = async (req, res) => {
         },
       },
     });
-    res.status(200).json(property);
+
+    let userId;
+    const token = req.cookies.token_access; 
+    if (!token){
+      userId = null
+    } else{
+
+        jwt.verify(token, process.env.JWT_SECRET_KEY, async (err, payload) => {
+          if (err){
+            userId = null;
+          } else{
+            userId = payload.id
+          }
+        });
+    }
+
+    const saved = await prisma.savedProperty.findUnique({
+      where:{
+        userId_propertyId: {
+          userId,
+          propertyId: id,
+        },
+      }
+    })
+
+    res.status(200).json({...property, isSaved: saved ? true : false});
   } catch (err) {
     console.log(err);
     res
@@ -227,3 +260,4 @@ export const deleteProperty = async (req, res) => {
     return res.status(500).json({ message: "Errore nella cancellazione dell'immobile" });
   }
 };
+

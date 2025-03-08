@@ -405,3 +405,107 @@ export const changePassword = async (req, res) => {
     return res.status(500).json({ message: "Errore interno del server.", error: error.message });
   }
 };
+
+export const saveProperty = async (req, res) => {
+  const propertyId = req.body.propertyId;
+  const userId = req.userId; 
+
+  try {
+    // Verifica se la proprietà è già salvata dall'utente
+    const savedProperty = await prisma.savedProperty.findUnique({
+      where: {
+        userId_propertyId: {
+          userId: userId,
+          propertyId: propertyId,
+        },
+      },
+    });
+
+    if (savedProperty) {
+      // Se la proprietà è già salvata, la rimuovi (annullamento del salvataggio)
+      await prisma.savedProperty.delete({
+        where: {
+          id: savedProperty.id,
+        },
+      });
+
+      return res.status(200).json({ message: "Salvataggio immobile annullato." });
+    } else {
+      // Se la proprietà non è salvata, la salvi
+      await prisma.savedProperty.create({
+        data: {
+          userId: userId,
+          propertyId: propertyId,
+        },
+      });
+
+      return res.status(200).json({ message: "Immobile salvato con successo." });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Errore interno del server.", error: error.message });
+  }
+};
+
+
+export const getSavedProperties = async (req, res) => {
+
+  const userId = req.userId; 
+  console.log("USer");
+  console.log(userId);
+  
+  try {
+
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = 10;
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    // Recupera le proprietà salvate con paginazione
+    const savedProperties = await prisma.savedProperty.findMany({
+      where: { userId },
+      skip: (page - 1) * pageSize, // Salta gli elementi in base alla pagina corrente
+      take: pageSize, // Limita il numero di risultati per pagina
+      include: {
+        property: true
+      },
+    });
+
+    // Restituisci le proprietà salvate
+    return res.status(200).json({ savedProperties: savedProperties.map(saved => saved.property) });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Errore nel recupero delle proprietà salvate" });
+  }
+};
+
+export const getUploadedProperties = async (req, res) => {
+  const userId = req.userId; 
+  console.log(userId);
+  console.log("AAA");
+  
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = 10;
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    // Recupera le proprietà caricate dall'agente con paginazione
+    const uploadedProperties = await prisma.property.findMany({
+      where: { agentId: userId },
+      skip: (page - 1) * pageSize, // Salta gli elementi in base alla pagina corrente
+      take: pageSize, // Limita il numero di risultati per pagina
+    });
+
+    return res.status(200).json({ uploadedProperties });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Errore nel recupero delle proprietà caricate" });
+  }
+};

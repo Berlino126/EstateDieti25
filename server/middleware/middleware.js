@@ -22,10 +22,16 @@ export const isRealEstateAgent = (req, res, next) => {
     if (err) return res.status(403).json("Token non valido");
 
     // Controllo che l'utente sia giornalista
-    if (payload.role !== "agent")
-      return res
+    if (payload.role !== "agent"){
+      if (payload.role !== "agency")
+      {
+        return res
         .status(403)
-        .json("Accesso negato: funzionalità permessa solo ai giornalisti");
+        .json("Accesso negato: funzionalità permessa solo agli agenti@ç");
+      }
+
+    }
+
     // Aggiungi i dati dell'utente alla richiesta per usarli nei middleware successivi
     console.log(payload.id);
     req.userId = payload.id;

@@ -72,12 +72,9 @@ export const login = async (req, res) => {
     }
 
     res
-      .cookie("token_access", token, {
-        httpOnly: true,
-        maxAge: age,
-      })
+      .cookie("token_access", token, { })
       .status(200)
-      .json({ ...userInfo, agencyInfo }); // Aggiungi i dati dell'agenzia alla risposta
+      .json({ ...userInfo, agencyInfo });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Utente non loggato" });
@@ -85,12 +82,10 @@ export const login = async (req, res) => {
 };
 
 export const logout = (req, res) => {
-  res
-    .clearCookie("token_access", {
-      httpOnly: true,
-      secure: true, // Se usi HTTPS, necessario su alcuni browser
-      sameSite: "None", // Per garantire compatibilità con frontend su domini diversi
-    })
-    .status(200)
-    .json({ message: "Logout eseguito" });
+  //console.log("Seconda prova");
+  res.clearCookie("token_access", {
+    httpOnly: true,
+    domain: 'localhost',
+    path: '/',
+  }).status(200).json("Logout eseguito")
 };
