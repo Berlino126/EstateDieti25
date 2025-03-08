@@ -14,6 +14,7 @@ function EditAgencyDashboard({ isOpen, onClose }) {
     address: "",
     city: "",
     phone: "",
+    website: "", // Nuovo campo per il sito web
     adminEmail: "",
     adminUsername: "",
     adminPassword: "",
@@ -68,7 +69,7 @@ function EditAgencyDashboard({ isOpen, onClose }) {
       city: newAgency.city,
       phone: newAgency.phone,
       email: newAgency.email,
-      website: newAgency.website || "", // Se il campo website è opzionale
+      website: newAgency.website || "", // Aggiungi il sito web come opzionale
     };
   
     const gestorData = {
@@ -139,6 +140,7 @@ function EditAgencyDashboard({ isOpen, onClose }) {
               <input type="text" name="address" value={newAgency.address} onChange={handleChange} placeholder="Indirizzo" />
               <input type="text" name="city" value={newAgency.city} onChange={handleChange} placeholder="Città" />
               <input type="text" name="phone" value={newAgency.phone} onChange={handleChange} placeholder="Telefono" />
+              <input type="text" name="website" value={newAgency.website} onChange={handleChange} placeholder="Sito web (opzionale)" />
             </div>
             <div className="agenziaAdminForm">
               <h2>Ricorda di creare anche un'utenza di gestione per l'agenzia</h2>

@@ -8,18 +8,24 @@
 }
 
 .infoWindow {
-  max-width: 250px;
+  max-width: 150px;
   text-align: center;
+  .infoTitle{
+    margin-top: -2%;
+    font-size: 20px;
+  }
 }
 
 .infoImage {
-  width: 100%;
+  width: 80%;
   height: auto;
   border-radius: 8px;
   margin: 8px 0;
 }
 
-.price {
+.infoPrice{
+  font-size: 14px;
+  margin-top: -5%;
   font-weight: bold;
   color: #333;
 }

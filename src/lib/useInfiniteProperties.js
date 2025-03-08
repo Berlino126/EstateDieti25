@@ -11,7 +11,7 @@ export const useInfiniteProperties = () => {
     queryKey: ["properties"],
     queryFn: fetchProperties,
     getNextPageParam: (lastPage, allPages) => {
-      return lastPage.nextPage ?? false; // Assumi che l'API restituisca un `nextPage`
+      return lastPage.nextPage ?? false; 
     },
   });
 };

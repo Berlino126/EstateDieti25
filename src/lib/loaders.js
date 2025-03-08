@@ -1,9 +1,16 @@
 import axios from "axios";
-export const singlePropertyLoader = async ({request, params}) =>{
-    const res = await axios.get("http://localhost:8800/api/property/" + params.id)
-    console.log(res.data);
-    return res.data
-}
+export const singlePropertyLoader = async ({ request, params }) => {
+    try {
+      const res = await axios.get("http://localhost:8800/api/property/" + params.id, {
+        withCredentials: true,
+      });
+      console.log(res.data);
+      return res.data;
+    } catch (error) {
+      console.error("Error fetching property:", error);
+      throw error;  
+    }
+  };
 export const listPropertyLoader = async ({request, params}) =>{
 
     const query = request.url.split("?")[1]
@@ -12,3 +19,5 @@ export const listPropertyLoader = async ({request, params}) =>{
     console.log(res);
     return res.data
 }
+
+

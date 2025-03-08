@@ -89,6 +89,7 @@
                         justify-content: flex-start;
                         align-items: center;
                         align-content: stretch;
+                        margin-top: 5%;
                     }
             
                     @include sm {
@@ -196,6 +197,7 @@
     @include md {
         flex: none;
         height: max-content;
+        margin-top: 10%;
     }
     .wrapper{
         

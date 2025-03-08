@@ -4,7 +4,7 @@ import {
   useLoadScript,
   InfoWindow,
 } from "@react-google-maps/api";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./MapComponent.scss";
 
 const mapContainerStyle = {
@@ -14,26 +14,32 @@ const mapContainerStyle = {
 };
 
 const MapComponent = ({ items }) => {
-  const center =
-    items.length === 1
-      ? { lat: items[0].latitude, lng: items[0].longitude }
-      : { lat: 51.5074, lng: -0.1278 };
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: "AIzaSyAAjvaziPhKPzbFfhXEmtsdVUuIV5dmm9Y",
+  });
+
+  const [selectedMarker, setSelectedMarker] = useState(null);
+  const [center, setCenter] = useState(null);
+
+  useEffect(() => {
+    if (items.length > 0) {
+      setCenter({ lat: items[0].latitude, lng: items[0].longitude });
+    }
+  }, [items]); // Si aggiorna ogni volta che cambia `items`
 
   console.log("Mappa centrata su:", center);
   console.log("Elementi ricevuti:", items);
 
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: "AIzaSyAAjvaziPhKPzbFfhXEmtsdVUuIV5dmm9Y" // Usa una variabile d'ambiente!
-  });
-
-  const [selectedMarker, setSelectedMarker] = useState(null);
-
   if (loadError) return <div>Errore nel caricamento della mappa</div>;
-  if (!isLoaded) return <div>Caricamento...</div>;
+  if (!isLoaded || !center) return <div>Caricamento...</div>;
 
   return (
     <div className="mapWrapper">
-      <GoogleMap mapContainerStyle={mapContainerStyle} zoom={10} center={center}>
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        zoom={10}
+        center={center}
+      >
         {items.map((item, index) => (
           <Marker
             key={item.id || index}
@@ -51,8 +57,9 @@ const MapComponent = ({ items }) => {
             onCloseClick={() => setSelectedMarker(null)}
           >
             <div className="infoWindow">
-              <h3>{selectedMarker.title}</h3>
-              <p>{selectedMarker.price}</p>
+            <img className= "infoImage"src={selectedMarker.images[0]} alt="" />
+              <h3 className="infoTitle">{selectedMarker.title}</h3>
+              <p className="infoPrice">{selectedMarker.price}€</p>
             </div>
           </InfoWindow>
         )}

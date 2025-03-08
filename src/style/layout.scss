@@ -3,7 +3,10 @@ body{
     font-family: "Inter", sans-serif;
     background-color: #EFF2F1;
     overflow-x: hidden;
-    overflow-y: hidden; /* Nasconde lo scroll orizzontale */
+    overflow-y: auto;
+    &::-webkit-scrollbar {
+        display: none;
+      }
     width: 100vw;
     input {
         width: 80%;

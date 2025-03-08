@@ -5,35 +5,36 @@ import MapComponent from "../../components/Map/MapComponent";
 import { useLoaderData, useNavigate } from "react-router";
 import { AuthContext } from "../../context/AuthContext";
 import { useContext, useState } from "react";
-import axios from 'axios';
-import { Link  } from "react-router";
-  // Funzione per tradurre il tipo di contratto
-  const translateContract = (contract) => {
-    switch (contract) {
-      case "buy":
-        return "Acquisto";
-      case "rent":
-        return "Affitto";
-      default:
-        return contract;
-    }
-  };
+import axios from "axios";
+import { Link } from "react-router";
+import DOMPurify from "dompurify";
+// Funzione per tradurre il tipo di contratto
+const translateContract = (contract) => {
+  switch (contract) {
+    case "buy":
+      return "Acquisto";
+    case "rent":
+      return "Affitto";
+    default:
+      return contract;
+  }
+};
 
-  // Funzione per tradurre il tipo di edificio
-  const translateType = (type) => {
-    switch (type) {
-      case "apartment":
-        return "Appartamento";
-      case "house":
-        return "Indipendente";
-      case "condo":
-        return "Condominio";
-      case "land":
-        return "Terreno";
-      default:
-        return type;
-    }
-  };
+// Funzione per tradurre il tipo di edificio
+const translateType = (type) => {
+  switch (type) {
+    case "apartment":
+      return "Appartamento";
+    case "house":
+      return "Indipendente";
+    case "condo":
+      return "Condominio";
+    case "land":
+      return "Terreno";
+    default:
+      return type;
+  }
+};
 
 const PropertyFeatures = ({ details }) => {
   const features = [
@@ -75,31 +76,58 @@ const PropertyFeatures = ({ details }) => {
   );
 };
 
-
 function SinglePage() {
   const property = useLoaderData();
-  const { currentUser } = useContext(AuthContext); 
-  console.log(property.agency);
+  console.log(property);
+  const { currentUser } = useContext(AuthContext);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
-
+  const [saved, setSaved] = useState(property.isSaved);
+  console.log(property.isSaved);
 
   const handleDelete = async () => {
-    const confirmDelete = window.confirm("Sei sicuro di voler eliminare questo immobile?");
-    const città = property.city; 
+    const confirmDelete = window.confirm(
+      "Sei sicuro di voler eliminare questo immobile?"
+    );
+    const città = property.city;
     if (confirmDelete) {
       try {
-        await axios.delete(`http://localhost:8800/api/property/${property.id}`, {
-          withCredentials: true 
-        });
+        await axios.delete(
+          `http://localhost:8800/api/property/${property.id}`,
+          {
+            withCredentials: true,
+          }
+        );
         navigate(`/list?city=${città}`);
       } catch (error) {
-        setError(error.response?.data?.message || "Errore durante la cancellazione");
+        setError(
+          error.response?.data?.message || "Errore durante la cancellazione"
+        );
       }
     }
   };
-  
+  const handleSave = async () => {
+    const action = saved ? "eliminare" : "salvare";
+
+    const confirmAction = window.confirm(
+      `Vuoi ${action} questo immobile nella tua lista di immobili salvati?`
+    );
+    if(!confirmAction) return;
+    try {
+      await axios.post(
+        `http://localhost:8800/api/user/save`,
+        {
+          propertyId: property.id,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+      setSaved(!saved);
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <div className="singlepage">
       <div className="caratteristiche">
@@ -130,19 +158,18 @@ function SinglePage() {
             <div className="mapContainer">
               <MapComponent items={[property]} />
             </div>
-            <button>
+            <button onClick={handleSave}>
               <img src="/save.png" alt="" />
-              Salva casa
+              {saved ? "Immobile salvato" : "Salva casa"}
             </button>
           </div>
         </div>
       </div>
       <div className="dettagli">
         <div className="wrapper">
-          <Slider images={singlePostData.images} />
+          <Slider images={property.images} />
           <div className="info">
             <div className="top">
-              
               <div className="post">
                 <h1>{property.title}</h1>
                 <div className="indirizzo">
@@ -157,7 +184,14 @@ function SinglePage() {
               </div>
             </div>
             <div className="bottom">
-              <div className="desc">{property.propertyDetails.description}</div>
+              <div
+                className="desc"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(
+                    property.propertyDetails.description
+                  ),
+                }}
+              ></div>
               <div className="general">
                 {[
                   {
@@ -189,15 +223,17 @@ function SinglePage() {
                   </div>
                 ))}
                 {currentUser.id === property.agentId && (
-                <div className="editDeleteButtons">
-                  <Link to={`/edit-properties?${property.id}`} state={property}>
-                  <i className=" fa fa-edit"></i>
-                  </Link>
+                  <div className="editDeleteButtons">
+                    <Link
+                      to={`/edit-properties?${property.id}`}
+                      state={property}
+                    >
+                      <i className=" fa fa-edit"></i>
+                    </Link>
                     <i className=" fa fa-trash" onClick={handleDelete}></i>
-                </div>
-              )}
+                  </div>
+                )}
               </div>
- 
             </div>
           </div>
         </div>

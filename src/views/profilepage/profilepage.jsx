@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../../context/AuthContext";
-import { useNavigate } from "react-router";
+import { data, useNavigate } from "react-router";
 import axios from "axios";
 import AdminDashboard from "../../components/AdminDashboard/admindashboard"; // Importa il componente AdminDashboard
 import AgentDashboard from "../../components/AgentDashboard/agentdashboard"; // Importa il componente AgentDashboard
@@ -9,6 +9,8 @@ import EditAgencyDashboard from "../../components/EditAgencyDashboard/editAgency
 import ImageWidget from "../../components/imageWidget/imageWidget";
 import AvatarWidget from "../../components/imageWidget/AvatarWidget";
 import ChangePassword from "../../components/ChangePassword/changePassword";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import Build from "../../components/Build/Build";
 function Profilepage() {
   const [agencyInfo, setAgencyInfo] = useState(null);
   const { updateUser, currentUser } = useContext(AuthContext);
@@ -32,11 +34,15 @@ function Profilepage() {
 
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:8800/api/auth/logout");
+      await axios.post("http://localhost:8800/api/auth/logout", {
+        withCredentials: true,
+      });
       updateUser(null);
       localStorage.removeItem("user");
       localStorage.removeItem("agency");
-
+      localStorage.removeItem("token");
+      document.cookie =
+        "token_access=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=localhost;";
       navigate("/");
     } catch (error) {
       console.log(error);
@@ -98,103 +104,156 @@ function Profilepage() {
     }
   };
 
-  return (
-    <div className="profilePage">
-      <div className="wrapper">
-        <div className="title">
-          <h1>Informazioni utente</h1>
-        </div>
-        <div className="info">
-          <div className="agency">
-            <div className="userinfo">
-              <span>Nome utente: {currentUser.username}</span>
-              <span>Email utente: {currentUser.email}</span>
-            </div>
+  const fetchSavedProperties = async ({ pageParam = 1 }) => {
+    const res = await axios.get(
+      `http://localhost:8800/api/user/getSaved?page=${pageParam}`,
+      { withCredentials: true }
+    );
 
-            {currentUser.role === "agency" && agencyInfo && (
-              <div className="agencyinfo">
-                <span>
-                  <img
-                    src={avatar || ""}
-                    onClick={() =>
-                      document.getElementById("upload_widget").click()
-                    }
-                  />
-                </span>
-                <div className="agencyText">
+    console.log(res.data);
+    return res.data;
+  };
+
+  const fetchUploadedProperties = async ({ pageParam = 1 }) => {
+    const res = await axios.get(
+      `http://localhost:8800/api/user/getUploaded?page=${pageParam}`,
+      { withCredentials: true }
+    );
+    console.log(res.data);
+    return res.data;
+  };
+  const {
+    data: savedProperties,
+    fetchNextPage: fetchNextSavedPage,
+    hasNextPage: hasNextSavedPage,
+    isFetchingNextPage: isFetchingNextSavedPage,
+  } = useInfiniteQuery({
+    queryFn: ({ pageParam }) => fetchSavedProperties({ pageParam }),
+    getNextPageParam: (lastPage, pages) => {
+      return lastPage.length === 10 ? pages.length + 1 : undefined;
+    },
+  });
+  const {
+    data: uploadedProperties,
+    fetchNextPage: fetchNextUploadedPage,
+    hasNextPage: hasNextUploadedPage,
+    isFetchingNextPage: isFetchingNextUploadedPage,
+  } = useInfiniteQuery({
+    queryKey: ["uploadedProperties"], // 🔹 Aggiunto queryKey
+    queryFn: ({ pageParam }) => fetchUploadedProperties({ pageParam }),
+    getNextPageParam: (lastPage, pages) => {
+      return lastPage.length === 10 ? pages.length + 1 : undefined;
+    },
+  });
+  if (savedProperties){
+    return (
+      <div className="profilePage">
+        <div className="wrapper">
+          <div className="title">
+            <h1>Informazioni utente</h1>
+          </div>
+  
+          <div className="info">
+            <div className="agency">
+              <div className="userinfo">
+                <span>Nome utente: {currentUser.username}</span>
+                <span>Email utente: {currentUser.email}</span>
+              </div>
+  
+              {currentUser.role === "agency" && agencyInfo && (
+                <div className="agencyinfo">
                   <span>
-                    {agencyInfo.name}, {agencyInfo.city}{" "}
+                    <img
+                      src={avatar || ""}
+                      onClick={() =>
+                        document.getElementById("upload_widget").click()
+                      }
+                    />
                   </span>
-                  <span>Email: {agencyInfo.email} </span>
+                  <div className="agencyText">
+                    <span>
+                      {agencyInfo.name}, {agencyInfo.city}{" "}
+                    </span>
+                    <span>Email: {agencyInfo.email} </span>
+                  </div>
+                  <AvatarWidget
+                    uwConfig={{
+                      multiple: false,
+                      cloudName: "dqmhaieiz",
+                      uploadPreset: "DietiEstate25",
+                      folder: "properties",
+                    }}
+                    setAvatar={(avatar) => {
+                      setAvatar(avatar);
+                      console.log("AAAA");
+                      updateAvatar(avatar);
+                    }}
+                  />
                 </div>
-                <AvatarWidget
-                  uwConfig={{
-                    multiple: false,
-                    cloudName: "dqmhaieiz",
-                    uploadPreset: "DietiEstate25",
-                    folder: "properties",
-                  }}
-                  setAvatar={(avatar) => {
-                    setAvatar(avatar);
-                    console.log("AAAA");
-                    updateAvatar(avatar);
-                  }}
-                />
+              )}
+            </div>
+  
+            <button onClick={handleLogout}>Logout</button>
+  
+            {currentUser.role === "agency" && (
+              <div className="upperbuttons">
+                <button onClick={openAgentDialog}>Gestisci agenti</button>{" "}
+                {/* Bottone per aprire la dialog degli agenti */}
+                <button onClick={openPasswordChange}>Cambia Password </button>
+              </div>
+            )}
+            {currentUser.role === "agent" && (
+              <div className="upperbuttons">
+                <button onClick={openPasswordChange}>Cambia Password </button>
+              </div>
+            )}
+            {currentUser.role === "admin" && (
+              <div className="upperbuttons">
+                <button onClick={openPasswordChange}>Cambia Password </button>
+                <button onClick={openEditAgencyDialog}>Gestisci Agenzie</button>
+                <button onClick={openAdminDialog}>Gestisci amministratori</button>
               </div>
             )}
           </div>
-
-          <button onClick={handleLogout}>Logout</button>
-
-          {currentUser.role === "agency" && (
-            <div className="upperbuttons">
-              <button onClick={openAgentDialog}>Gestisci agenti</button>{" "}
-              {/* Bottone per aprire la dialog degli agenti */}
-              <button onClick={openPasswordChange}>Cambia Password </button>
+  
+          {(currentUser.role === "agent" || currentUser.role === "agency") && (
+            <div className="title">
+              <h1>Immobili caricati</h1>
+              <button onClick={() => navigate("/edit-properties")}>
+                Aggiungi nuova inserzione
+              </button>
+              {uploadedProperties?.pages
+                .flatMap((page) => page.uploadedProperties || [])
+                .map((item) =>
+                  item ? <Build key={item.id} item={item} /> : null
+                )}
             </div>
           )}
-          {currentUser.role === "agent" && (
-            <div className="upperbuttons">
-              <button onClick={openPasswordChange}>Cambia Password </button>
-            </div>
-          )}
-          {currentUser.role === "admin" && (
-            <div className="upperbuttons">
-              <button onClick={openPasswordChange}>Cambia Password </button>
-              <button onClick={openEditAgencyDialog}>Gestisci Agenzie</button>
-              <button onClick={openAdminDialog}>Gestisci amministratori</button>
-            </div>
-          )}
-        </div>
-
-        {(currentUser.role === "agent" || currentUser.role === "agency") && (
+  
           <div className="title">
-            <h1>Immobili caricati</h1>
-            <button onClick={() => navigate("/edit-properties")}>
-              Aggiungi nuova inserzione
-            </button>
+            <h1>Immobili Salvati</h1>
+            {savedProperties?.pages
+              .flatMap((page) => page.savedProperties || [])
+              .map((item) => (item ? <Build key={item.id} item={item} /> : null))}
           </div>
-        )}
-
-        <div className="title">
-          <h1>Immobili Salvati</h1>
         </div>
+        {/* Componente AdminDashboard */}
+        <AdminDashboard isOpen={isAdminOpen} onClose={closeAdminDialog} />
+        {/* Componente AgentDashboard */}
+        <AgentDashboard isOpen={isAgentOpen} onClose={closeAgentDialog} />{" "}
+        {/* Aggiungi il componente AgentDashboard */}
+        <EditAgencyDashboard
+          isOpen={isEditAgencyOpen}
+          onClose={closeEditAgencyDialog}
+        />
+        <ChangePassword
+          isOpen={isChangePasswordOpen}
+          onClose={closePasswordChange}
+        />
       </div>
-      {/* Componente AdminDashboard */}
-      <AdminDashboard isOpen={isAdminOpen} onClose={closeAdminDialog} />
-      {/* Componente AgentDashboard */}
-      <AgentDashboard isOpen={isAgentOpen} onClose={closeAgentDialog} />{" "}
-      {/* Aggiungi il componente AgentDashboard */}
-      <EditAgencyDashboard
-        isOpen={isEditAgencyOpen}
-        onClose={closeEditAgencyDialog}
-      />
-      <ChangePassword
-        isOpen={isChangePasswordOpen}
-        onClose={closePasswordChange}
-      />
-    </div>
-  );
+    );
+  }
+
 }
 
 export default Profilepage;

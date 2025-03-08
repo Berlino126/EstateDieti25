@@ -1,22 +1,23 @@
 import { useState, useEffect } from "react";
 import "./ListPage.scss";
-import { listData } from "../../lib/dummydata";
 import Build from "../../components/Build/Build";
 import Filter from "../../components/Filter/Filter";
 import MapComponent from "../../components/Map/MapComponent";
-import { useLoaderData } from "react-router";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { useSearchParams } from "react-router";
+
 function ListPage() {
-  const properties = useLoaderData();
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
-  const [isDeepSearchOpen, setIsDeepSearchOpen] = useState(false); 
+  const [searchParams] = useSearchParams();
+  const query = searchParams.toString();
   useEffect(() => {
     const handleResize = () => {
       const smallScreen = window.innerWidth < 768;
       setIsSmallScreen(smallScreen);
       if (!smallScreen) {
-        setIsMapOpen(false); // Se lo schermo diventa grande, la mappa torna normale
+        setIsMapOpen(false);
       }
     };
 
@@ -24,13 +25,32 @@ function ListPage() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const openAdminDialog = () => {
-    setIsAdminOpen(true);  // Apri la dialog
+  const fetchProperties = async ({ pageParam = 1, queryKey }) => {
+    const [, filters] = queryKey; // Estrai i filtri dalla queryKey
+    const res = await axios.get(`http://localhost:8800/api/property?page=${pageParam}&${filters}`);
+    console.log(res.data);
+    return res.data;
   };
+  
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch, // Aggiungi refetch
+  } = useInfiniteQuery({
+    queryKey: ["properties", query],
+    queryFn: ({ pageParam }) => fetchProperties({ pageParam, queryKey: ["properties", query] }),
+    getNextPageParam: (lastPage, pages) => {
+      return lastPage.length === 10 ? pages.length + 1 : undefined;
+    },
+  });
+  
+  useEffect(() => {
+    refetch(); 
+  }, [query, refetch]);
+  
 
-  const closeAdminDialog = () => {
-    setIsAdminOpen(false);  // Chiudi la dialog
-  };
   return (
     <div className={`listPage ${isMapOpen ? "mapOpen" : ""}`}>
       {isSmallScreen && (
@@ -40,16 +60,22 @@ function ListPage() {
       )}
 
       <div className={`mapContainer ${isMapOpen ? "fullMap" : "closeMap"}`}>
-        <MapComponent items={properties} />
+        <MapComponent items={data?.pages.flat() || []} />
       </div>
 
       {!isMapOpen && (
         <div className="listContainer">
           <div className="wrapper">
             <Filter />
-            {properties.map((item) => (
+            {data?.pages.flat().map((item) => (
               <Build key={item.id} item={item} />
             ))}
+            {/* Pulsante per caricare più immobili */}
+            {hasNextPage && (
+              <button className="loadMoreButton" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+                {isFetchingNextPage ? "Caricamento..." : "Carica altri immobili"}
+              </button>
+            )}
           </div>
         </div>
       )}

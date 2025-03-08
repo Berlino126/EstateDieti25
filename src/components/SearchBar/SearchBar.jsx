@@ -24,15 +24,38 @@ function SearchBar() {
   const switchType = (val) => {
     setQuery((prev) => ({ ...prev, contract: val }));
   };
-
-  const handleSearch = (event) => {
+  const getCityCoordinates = async (location) => {
+    if (!location) return {};
+  
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?city=${location}&countrycodes=IT&format=json&limit=1`
+      );
+      const data = await res.json();
+  
+      if (data.length > 0) {
+        return { latitude: data[0].lat, longitude: data[0].lon };
+      }
+    } catch (error) {
+      console.error("Errore nel recupero delle coordinate:", error);
+    }
+  
+    return {}; // Se la ricerca fallisce, non modifica la query
+  };
+  const handleSearch = async (event) => {
     event.preventDefault();
+    console.log("Città selezionata:", query.location);
+  
+    const { latitude, longitude } = await getCityCoordinates(query.location);
+    console.log("Coordinate:", latitude, longitude);
+  
     navigate(
       `/list?contract=${query.contract === "Compra" ? "buy" : "rent"}&city=${
         query.location
-      }&minPrice=${query.minPrice}&maxPrice=${query.maxPrice}`
+      }&minPrice=${query.minPrice}&maxPrice=${query.maxPrice}&latitude=${latitude || ""}&longitude=${longitude || ""}`
     );
   };
+  
 
   const handleChange = async (e) => {
     const { name, value } = e.target;

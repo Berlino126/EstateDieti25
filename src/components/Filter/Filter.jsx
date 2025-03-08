@@ -93,6 +93,7 @@ function Filter() {
     console.log(query);
     console.log(coordinates);
     setSearchParams({ ...query, ...coordinates, ...advancedFilters });
+    
   };
   
 

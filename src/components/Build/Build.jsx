@@ -10,7 +10,7 @@ function Build({ item }) {
       <div className="textContainer">
       <p className="prezzo">€{item.price}</p>
         <h2 className="title"><Link to={`/${item.id}`}>{item.title}</Link></h2>
-        <p className="subtitle">Lorem Ipsum</p>
+
         <p className="indirizzo">
           <img src="/pin.png" alt="" />
           <span>{item.address}</span>
@@ -26,9 +26,7 @@ function Build({ item }) {
             <span>{item.bathroom}</span>
           </div>
           </div>
-          <div className="icona">
-          <i className="fa fa-tag"></i>
-          </div>
+
         </div>
       </div>
     </div>
