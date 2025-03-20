@@ -3,8 +3,6 @@ import { AuthContext } from "../../context/AuthContext";
 import "./HomePage.scss"
 import { useContext, useEffect } from "react";
 function HomePage(){
-    //const {currentUser} = useContext(AuthContext)
-    //console.log(currentUser);
     return(
         <div className="homePage">
             <div className="textContainer">

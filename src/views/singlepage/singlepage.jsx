@@ -8,6 +8,7 @@ import { useContext, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router";
 import DOMPurify from "dompurify";
+import apiRequest from "../../lib/apiRequest";
 // Funzione per tradurre il tipo di contratto
 const translateContract = (contract) => {
   switch (contract) {
@@ -92,8 +93,8 @@ function SinglePage() {
     const città = property.city;
     if (confirmDelete) {
       try {
-        await axios.delete(
-          `http://localhost:8800/api/property/${property.id}`,
+        await apiRequest.delete(
+          `/property/${property.id}`,
           {
             withCredentials: true,
           }
@@ -114,8 +115,8 @@ function SinglePage() {
     );
     if(!confirmAction) return;
     try {
-      await axios.post(
-        `http://localhost:8800/api/user/save`,
+      await apiRequest.post(
+        `/user/save`,
         {
           propertyId: property.id,
         },

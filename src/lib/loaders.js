@@ -1,7 +1,8 @@
 import axios from "axios";
+import apiRequest from "./apiRequest";
 export const singlePropertyLoader = async ({ request, params }) => {
     try {
-      const res = await axios.get("http://localhost:8800/api/property/" + params.id, {
+      const res = await apiRequest.get("/property/" + params.id, {
         withCredentials: true,
       });
       console.log(res.data);
@@ -15,7 +16,7 @@ export const listPropertyLoader = async ({request, params}) =>{
 
     const query = request.url.split("?")[1]
     console.log(query);
-    const res = await axios.get("http://localhost:8800/api/property?" + query)
+    const res = await apiRequest.get("/property?" + query)
     console.log(res);
     return res.data
 }

@@ -1,7 +1,8 @@
-import { useContext, useState, useEffect  } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
 import "./changePassword.scss";
+import apiRequest from "../../lib/apiRequest";
 
 function ChangePassword({ isOpen, onClose }) {
   const { currentUser } = useContext(AuthContext);
@@ -12,22 +13,40 @@ function ChangePassword({ isOpen, onClose }) {
   const [successMessage, setSuccessMessage] = useState("");
 
   if (!isOpen) return null;
+  const verifyPassword = (oldPassword, newPassword, confirmPassword) => {
+    if (newPassword.length < 8) {
+      return "La nuova password deve essere di almeno 8 caratteri.";
+    }
 
+    if (newPassword === oldPassword) {
+      return "La nuova password non può essere uguale alla vecchia.";
+    }
+
+    if (newPassword !== confirmPassword) {
+      return "Le nuove password non coincidono.";
+    }
+
+    return null; // Nessun errore
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccessMessage("");
 
-    if (newPassword !== confirmPassword) {
-      setError("Le nuove password non coincidono.");
+    // Validazioni
+    const validationError = verifyPassword(
+      oldPassword,
+      newPassword,
+      confirmPassword
+    );
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
     try {
-        console.log(oldPassword);
-        console.log(newPassword);
-      const response = await axios.put(
-        "http://localhost:8800/api/user/changePassword",
+      const response = await apiRequest.put(
+        "/user/changePassword",
         {
           oldPassword,
           newPassword,
@@ -40,7 +59,7 @@ function ChangePassword({ isOpen, onClose }) {
         setOldPassword("");
         setNewPassword("");
         setConfirmPassword("");
-        setTimeout(() => handleClose(), 2000); // Chiude il popup dopo 2 secondi
+        setTimeout(() => handleClose(), 2000);
       } else {
         setError(response.data.message || "Errore nel cambio password.");
       }
@@ -48,15 +67,16 @@ function ChangePassword({ isOpen, onClose }) {
       setError("Errore durante il cambio password. Riprova.");
     }
   };
+
   const handleClose = () => {
-    setNewPassword("")
-    setOldPassword("")
-    setConfirmPassword("")
-    setSuccessMessage("")
-    setError("")
-    // Chiamata alla funzione di chiusura passata come prop
+    setNewPassword("");
+    setOldPassword("");
+    setConfirmPassword("");
+    setSuccessMessage("");
+    setError("");
     onClose();
   };
+
   return (
     <div className="password-overlay">
       <div className="password-dialog">
@@ -90,7 +110,9 @@ function ChangePassword({ isOpen, onClose }) {
               required
             />
             {error && <p className="error-message">{error}</p>}
-            {successMessage && <p className="success-message">{successMessage}</p>}
+            {successMessage && (
+              <p className="success-message">{successMessage}</p>
+            )}
             <button className="submit-btn" type="submit">
               Cambia password
             </button>

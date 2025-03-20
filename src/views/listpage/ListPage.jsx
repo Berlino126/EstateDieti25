@@ -6,12 +6,14 @@ import MapComponent from "../../components/Map/MapComponent";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useSearchParams } from "react-router";
+import apiRequest from "../../lib/apiRequest";
 
 function ListPage() {
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
   const [searchParams] = useSearchParams();
   const query = searchParams.toString();
+
   useEffect(() => {
     const handleResize = () => {
       const smallScreen = window.innerWidth < 768;
@@ -27,17 +29,17 @@ function ListPage() {
 
   const fetchProperties = async ({ pageParam = 1, queryKey }) => {
     const [, filters] = queryKey; // Estrai i filtri dalla queryKey
-    const res = await axios.get(`http://localhost:8800/api/property?page=${pageParam}&${filters}`);
+    const res = await apiRequest.get(`/property?page=${pageParam}&${filters}`);
     console.log(res.data);
     return res.data;
   };
-  
+
   const {
     data,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    refetch, // Aggiungi refetch
+    refetch,
   } = useInfiniteQuery({
     queryKey: ["properties", query],
     queryFn: ({ pageParam }) => fetchProperties({ pageParam, queryKey: ["properties", query] }),
@@ -45,11 +47,12 @@ function ListPage() {
       return lastPage.length === 10 ? pages.length + 1 : undefined;
     },
   });
-  
+
   useEffect(() => {
-    refetch(); 
+    refetch();
   }, [query, refetch]);
-  
+
+  const flattenedData = data?.pages.flat() || [];
 
   return (
     <div className={`listPage ${isMapOpen ? "mapOpen" : ""}`}>
@@ -60,17 +63,20 @@ function ListPage() {
       )}
 
       <div className={`mapContainer ${isMapOpen ? "fullMap" : "closeMap"}`}>
-        <MapComponent items={data?.pages.flat() || []} />
+        <MapComponent items={flattenedData} />
       </div>
 
       {!isMapOpen && (
         <div className="listContainer">
           <div className="wrapper">
             <Filter />
-            {data?.pages.flat().map((item) => (
-              <Build key={item.id} item={item} />
-            ))}
-            {/* Pulsante per caricare più immobili */}
+            {flattenedData.length === 0 ? (
+              <p className="no-results-message">Non sono riuscito a trovare nulla</p>
+            ) : (
+              flattenedData.map((item) => (
+                <Build key={item.id} item={item} />
+              ))
+            )}
             {hasNextPage && (
               <button className="loadMoreButton" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
                 {isFetchingNextPage ? "Caricamento..." : "Carica altri immobili"}

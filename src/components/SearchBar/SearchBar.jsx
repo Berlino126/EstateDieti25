@@ -24,38 +24,45 @@ function SearchBar() {
   const switchType = (val) => {
     setQuery((prev) => ({ ...prev, contract: val }));
   };
+
   const getCityCoordinates = async (location) => {
     if (!location) return {};
-  
+
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?city=${location}&countrycodes=IT&format=json&limit=1`
       );
       const data = await res.json();
-  
+
       if (data.length > 0) {
         return { latitude: data[0].lat, longitude: data[0].lon };
       }
     } catch (error) {
       console.error("Errore nel recupero delle coordinate:", error);
     }
-  
+
     return {}; // Se la ricerca fallisce, non modifica la query
   };
+
   const handleSearch = async (event) => {
-    event.preventDefault();
+    event.preventDefault(); // Previeni l'invio predefinito del form
+
+    if (!query.location) {
+      alert("Inserisci una città per procedere con la ricerca.");
+      return;
+    }
+
     console.log("Città selezionata:", query.location);
-  
+
     const { latitude, longitude } = await getCityCoordinates(query.location);
     console.log("Coordinate:", latitude, longitude);
-  
+
     navigate(
       `/list?contract=${query.contract === "Compra" ? "buy" : "rent"}&city=${
         query.location
       }&minPrice=${query.minPrice}&maxPrice=${query.maxPrice}&latitude=${latitude || ""}&longitude=${longitude || ""}`
     );
   };
-  
 
   const handleChange = async (e) => {
     const { name, value } = e.target;
@@ -84,30 +91,31 @@ function SearchBar() {
     setSuggestions([]);
   };
 
+  const verifyPrice = (minPrice, maxPrice) => {
+    if (minPrice !== "" && maxPrice !== "" && minPrice > maxPrice) {
+      alert("Il prezzo minimo non può essere maggiore del prezzo massimo");
+      return false;
+    }
+    if (maxPrice !== "" && minPrice !== "" && maxPrice < minPrice) {
+      alert("Il prezzo massimo non può essere minore del prezzo minimo");
+      return false;
+    }
+    return true;
+  };
+
   const handlePriceChange = (e) => {
     const { name, value } = e.target;
     const numericValue = value ? parseInt(value) : "";
 
-    if (
-      name === "minPrice" &&
-      numericValue > query.maxPrice &&
-      query.maxPrice !== ""
-    ) {
-      alert("Il prezzo minimo non può essere maggiore del prezzo massimo");
-      return;
-    }
-    if (
-      name === "maxPrice" &&
-      numericValue < query.minPrice &&
-      query.minPrice !== ""
-    ) {
-      alert("Il prezzo massimo non può essere minore del prezzo minimo");
+    const updatedQuery = { ...query, [name]: numericValue };
+
+    if (!verifyPrice(updatedQuery.minPrice, updatedQuery.maxPrice)) {
       return;
     }
 
-    setQuery((prev) => ({ ...prev, [name]: numericValue }));
+    setQuery(updatedQuery);
   };
-  // Scegli le opzioni di prezzo in base al tipo di contratto
+
   const priceOptions =
     query.contract === "Compra" ? priceOptionsBuy : priceOptionsRent;
 
@@ -124,18 +132,16 @@ function SearchBar() {
           </button>
         ))}
       </div>
-      <form>
+      <form onSubmit={handleSearch}>
         <div className="city-container">
           <input
-
             type="text"
             name="location"
             placeholder="Città"
             className="cityinput"
             value={query.location}
-            required
             onChange={handleChange}
-
+            required
           />
           {suggestions.length > 0 && (
             <ul className="autocomplete-list">
@@ -176,7 +182,7 @@ function SearchBar() {
           </select>
         </div>
 
-        <button className="cerca" onClick={handleSearch}>
+        <button type="submit" className="cerca">
           <img src="/search.png" alt="" />
         </button>
       </form>

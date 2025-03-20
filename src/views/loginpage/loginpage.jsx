@@ -4,6 +4,7 @@ import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { FaGoogle, FaGithub } from "react-icons/fa";
+import apiRequest from "../../lib/apiRequest";
 
 function LoginPage() {
   const [error, setError] = useState("");
@@ -19,7 +20,7 @@ function LoginPage() {
     const password = formData.get("password");
   
     try {
-      const res = await axios.post("http://localhost:8800/api/auth/login", {
+      const res = await apiRequest.post("/auth/login", {
         username,
         password,
       }, { withCredentials: true });
@@ -32,7 +33,7 @@ function LoginPage() {
       if (userData.role === "agency" && userData.agencyInfo) {
         localStorage.setItem("agency", JSON.stringify(userData.agencyInfo));
       }
-  
+      console.log("Cookie ricevuto:", document.cookie);
       console.log(res);
       updateUser(userData);
       navigate("/"); // Reindirizza dopo il login
@@ -42,7 +43,7 @@ function LoginPage() {
       setIsLoading(false);
     }
   };
-  
+   
 
   const google = () => {
     window.location.href = "http://localhost:8800/api/auth/google";
@@ -90,7 +91,7 @@ function LoginPage() {
             </button>
           </div>
           {error && <span>{error}</span>}
-          <Link to="/register" className="registerLink">
+          <Link to="/register" className="loginLink">
             Non hai un account? Registrati
           </Link>
         </form>

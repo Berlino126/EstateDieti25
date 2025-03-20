@@ -3,6 +3,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "./editAgencyDashboard.scss";
 import axios from "axios";
+import apiRequest from "../../lib/apiRequest";
 
 function EditAgencyDashboard({ isOpen, onClose }) {
   const { currentUser } = useContext(AuthContext);
@@ -22,7 +23,7 @@ function EditAgencyDashboard({ isOpen, onClose }) {
 
   const fetchAgencies = async () => {
     try {
-      const response = await axios.get("http://localhost:8800/api/user/getAgencies", {
+      const response = await apiRequest.get("/user/getAgencies", {
         withCredentials: true,
       });
       setAgencies(response.data.agencies);
@@ -42,7 +43,7 @@ function EditAgencyDashboard({ isOpen, onClose }) {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://localhost:8800/api/user/deleteAgency/${id}`, {
+      await apiRequest.delete(`/user/deleteAgency/${id}`, {
         withCredentials: true,
       });
       alert("Agenzia eliminata con successo!");
@@ -81,7 +82,7 @@ function EditAgencyDashboard({ isOpen, onClose }) {
     console.log(agencyData);
     console.log(gestorData);
     try {
-      const response = await axios.post("http://localhost:8800/api/user/addAgency", { agencyData, gestorData });
+      const response = await apiRequest.post("/user/addAgency", { agencyData, gestorData });
   
       alert("Agenzia e gestore creati con successo!");
       

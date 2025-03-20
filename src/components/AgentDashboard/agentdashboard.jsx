@@ -3,6 +3,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./agentdashboard.scss";
+import apiRequest from "../../lib/apiRequest";
 
 function AgentDashboard({ isOpen, onClose }) {
   const { currentUser } = useContext(AuthContext);
@@ -18,7 +19,7 @@ function AgentDashboard({ isOpen, onClose }) {
   // 🔹 **Recupero agenti**
   const fetchAgents = async () => {
     try {
-      const response = await axios.get("http://localhost:8800/api/user/getAgents", {
+      const response = await apiRequest.get("/user/getAgents", {
         withCredentials: true,
       });
       setAgents(response.data.agents);
@@ -48,7 +49,7 @@ function AgentDashboard({ isOpen, onClose }) {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://localhost:8800/api/user/deleteAgent/${id}`, {
+      await apiRequest.delete(`/user/deleteAgent/${id}`, {
         withCredentials: true,
       });
       alert("Agente eliminato con successo!");
@@ -63,7 +64,7 @@ function AgentDashboard({ isOpen, onClose }) {
     event.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:8800/api/user/addAgent", 
+      const response = await apiRequest.post("/user/addAgent", 
         { agentData: newAgent }, 
         {withCredentials:true}
       );

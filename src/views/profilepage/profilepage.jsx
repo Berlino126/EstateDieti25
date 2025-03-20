@@ -11,6 +11,7 @@ import AvatarWidget from "../../components/imageWidget/AvatarWidget";
 import ChangePassword from "../../components/ChangePassword/changePassword";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Build from "../../components/Build/Build";
+import apiRequest from "../../lib/apiRequest";
 function Profilepage() {
   const [agencyInfo, setAgencyInfo] = useState(null);
   const { updateUser, currentUser } = useContext(AuthContext);
@@ -34,7 +35,7 @@ function Profilepage() {
 
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:8800/api/auth/logout", {
+      await apiRequest.post("/auth/logout", {
         withCredentials: true,
       });
       updateUser(null);
@@ -42,7 +43,7 @@ function Profilepage() {
       localStorage.removeItem("agency");
       localStorage.removeItem("token");
       document.cookie =
-        "token_access=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=localhost;";
+        "token_access=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=35.181.57.245;";
       navigate("/");
     } catch (error) {
       console.log(error);
@@ -85,8 +86,8 @@ function Profilepage() {
     if (!confirm) return;
 
     try {
-      const response = await axios.put(
-        "http://localhost:8800/api/user/updateAgencyProfile",
+      const response = await apiRequest.put(
+        "/user/updateAgencyProfile",
         {
           avatar: avatar,
         },
@@ -105,8 +106,8 @@ function Profilepage() {
   };
 
   const fetchSavedProperties = async ({ pageParam = 1 }) => {
-    const res = await axios.get(
-      `http://localhost:8800/api/user/getSaved?page=${pageParam}`,
+    const res = await apiRequest.get(
+      `/user/getSaved?page=${pageParam}`,
       { withCredentials: true }
     );
 
@@ -115,8 +116,8 @@ function Profilepage() {
   };
 
   const fetchUploadedProperties = async ({ pageParam = 1 }) => {
-    const res = await axios.get(
-      `http://localhost:8800/api/user/getUploaded?page=${pageParam}`,
+    const res = await apiRequest.get(
+      `/user/getUploaded?page=${pageParam}`,
       { withCredentials: true }
     );
     console.log(res.data);

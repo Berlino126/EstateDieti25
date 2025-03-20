@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "./admindashboard.scss";
 
 import axios from "axios";
+import apiRequest from "../../lib/apiRequest";
 
 function AdminDashboard({ isOpen, onClose }) {
   const { currentUser } = useContext(AuthContext);
@@ -17,8 +18,8 @@ function AdminDashboard({ isOpen, onClose }) {
 
   const fetchAdmins = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:8800/api/user/getAdmins",
+      const response = await apiRequest.get(
+        "/api/user/getAdmins",
         {
           withCredentials: true,
         }
@@ -40,7 +41,7 @@ function AdminDashboard({ isOpen, onClose }) {
     if (!confirmDelete) return;
 
     try {
-      const res = await axios.delete(`http://localhost:8800/api/user/deleteAdmin/${id}`, {
+      const res = await apiRequest.delete(`/user/deleteAdmin/${id}`, {
         withCredentials: true
       });
       alert('Amministratore eliminato con successo!');
@@ -61,8 +62,8 @@ function AdminDashboard({ isOpen, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        "http://localhost:8800/api/user/addAdmin", 
+      const res = await apiRequest.post(
+        "/user/addAdmin", 
         newAdmin,
         { withCredentials: true }
       );

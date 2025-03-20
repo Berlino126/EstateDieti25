@@ -7,6 +7,7 @@ import "react-quill/dist/quill.snow.css";
 import ImageWidget from "../../components/imageWidget/imageWidget";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
+import apiRequest from "../../lib/apiRequest";
 function EditProperties() {
   const location = useLocation();
   const property = location.state;
@@ -74,8 +75,8 @@ function EditProperties() {
     const agentId = currentUser.id;
     try {
       if(!property){
-      const res = await axios.post(
-        "http://localhost:8800/api/property",
+      const res = await apiRequest.post(
+        "/property",
         {
           propertyData,
           propertyDetails,
@@ -88,7 +89,7 @@ function EditProperties() {
 
       navigate("/" + res.data.id);
     } else {
-      const res = await axios.put(`http://localhost:8800/api/property/${property.id}`, 
+      const res = await apiRequest.put(`/property/${property.id}`, 
         {
           propertyData,
           propertyDetails,
