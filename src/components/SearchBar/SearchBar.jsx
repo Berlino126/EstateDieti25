@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./stile.scss";
 import { useNavigate } from "react-router-dom";
-
+import verifyPrice from "../../lib/utils"
 const contract = ["Compra", "Affitta"];
 
 // Opzioni di prezzo per compra e affitta
@@ -91,17 +91,7 @@ function SearchBar() {
     setSuggestions([]);
   };
 
-  const verifyPrice = (minPrice, maxPrice) => {
-    if (minPrice !== "" && maxPrice !== "" && minPrice > maxPrice) {
-      alert("Il prezzo minimo non può essere maggiore del prezzo massimo");
-      return false;
-    }
-    if (maxPrice !== "" && minPrice !== "" && maxPrice < minPrice) {
-      alert("Il prezzo massimo non può essere minore del prezzo minimo");
-      return false;
-    }
-    return true;
-  };
+
 
   const handlePriceChange = (e) => {
     const { name, value } = e.target;
@@ -110,6 +100,7 @@ function SearchBar() {
     const updatedQuery = { ...query, [name]: numericValue };
 
     if (!verifyPrice(updatedQuery.minPrice, updatedQuery.maxPrice)) {
+      alert("Il prezzo minimo non può essere maggiore del prezzo massimo");
       return;
     }
 

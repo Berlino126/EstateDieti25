@@ -16,9 +16,7 @@ function Navbar() {
           <span>DietiEstate25</span>
         </a>
         <a href="/">HomePage</a>
-        <a href="/">Compra</a>
-        <a href="/">Affitta</a>
-        <a href="/">Contatti</a>
+        <a href="https://www.dieti.unina.it/index.php/it/">Contatti</a>
       </div>
       <div className="right">
         {currentUser ? (
@@ -42,9 +40,7 @@ function Navbar() {
         </div>
         <div className={open ? "menu active" : "menu"}>
           <Link to="/">HomePage</Link>
-          <Link to="/chi-siamo">Chi siamo</Link>
-          <Link to="/list">Compra</Link>
-          <Link to="/list">Affitta</Link>
+          <Link to="https://www.dieti.unina.it/index.php/it/">Contatti</Link>
           {currentUser ? (
             <Link to="/profile">Profilo</Link>
           ) : (

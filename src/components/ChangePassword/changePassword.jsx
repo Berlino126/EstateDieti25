@@ -3,7 +3,7 @@ import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
 import "./changePassword.scss";
 import apiRequest from "../../lib/apiRequest";
-
+import verifyPassword from "../../lib/utils"
 function ChangePassword({ isOpen, onClose }) {
   const { currentUser } = useContext(AuthContext);
   const [oldPassword, setOldPassword] = useState("");
@@ -13,21 +13,7 @@ function ChangePassword({ isOpen, onClose }) {
   const [successMessage, setSuccessMessage] = useState("");
 
   if (!isOpen) return null;
-  const verifyPassword = (oldPassword, newPassword, confirmPassword) => {
-    if (newPassword.length < 8) {
-      return "La nuova password deve essere di almeno 8 caratteri.";
-    }
 
-    if (newPassword === oldPassword) {
-      return "La nuova password non può essere uguale alla vecchia.";
-    }
-
-    if (newPassword !== confirmPassword) {
-      return "Le nuove password non coincidono.";
-    }
-
-    return null; // Nessun errore
-  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
